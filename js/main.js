@@ -1,3 +1,20 @@
+/*
+   Copyright 2014 Nebez Briefkani
+   floppybird - main.js
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 var debugmode = false;
 
 var states = Object.freeze({
@@ -52,11 +69,44 @@ $(document).ready(function() {
    showSplash();
 });
 
+// instantiate Cionic SDK
+const cionic = new cionicjs.Cionic({
+   streamLogger: function(msg, cls) {
+      var logDiv = document.getElementById('log');
+      logDiv.innerHTML += '<div class="'+cls+'">&gt;&nbsp;' + msg + '</div>';
+      logDiv.scrollTop = logDiv.scrollHeight;
+}});
+
+// add Cionic listeners
+cionic.Stream.registerListener('lPress', function(isPressed) {
+   if (isPressed === 'ON') {
+      if(currentstate == states.ScoreScreen)
+         $("#replay").click();
+      else
+         screenClick();
+   }
+});
+
+cionic.Stream.registerListener('rPress', function(isPressed) {
+   if (isPressed === 'ON') {
+      if(currentstate == states.ScoreScreen)
+         $("#replay").click();
+      else
+         screenClick();
+   }
+});
+
+// connect to the gateway
+document.getElementById('cionic-connect').onclick = function () {
+   let host = document.getElementById('host').value;
+   cionic.Stream.socket(host);
+};
+
 function getCookie(cname)
 {
    var name = cname + "=";
    var ca = document.cookie.split(';');
-   for(var i=0; i<ca.length; i++)
+   for(var i=0; i<ca.length; i++) 
    {
       var c = ca[i].trim();
       if (c.indexOf(name)==0) return c.substring(name.length,c.length);
@@ -210,7 +260,7 @@ function gameloop() {
       if(boxtop > pipetop && boxbottom < pipebottom)
       {
          //yeah! we're within bounds
-
+         
       }
       else
       {
@@ -220,13 +270,12 @@ function gameloop() {
       }
    }
 
-
    //have we passed the imminent danger?
    if(boxleft > piperight)
    {
       //yes, remove it
       pipes.splice(0, 1);
-
+      
       //and score a point
       playerScore();
    }
@@ -247,9 +296,9 @@ $(document).keydown(function(e){
 
 //Handle mouse down OR touch start
 if("ontouchstart" in window)
-   $(document).on("touchstart", screenClick);
+   $('#sky').on("touchstart", screenClick);
 else
-   $(document).on("mousedown", screenClick);
+   $('#sky').on("mousedown", screenClick);
 
 function screenClick()
 {
