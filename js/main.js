@@ -65,6 +65,11 @@ $(document).ready(function() {
    if(savedscore != "")
       highscore = parseInt(savedscore);
 
+   // add monitor code
+   const monitorAPI = new cionicjs.MonitorAPI({});
+   monitorAPI.addPlayer(cionic);
+   monitorAPI.main()
+
    //start with the splash screen
    showSplash();
 });
