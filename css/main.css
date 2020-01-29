@@ -398,7 +398,7 @@ Screen - Game
 }
 
 #log {
-   width:300px; 
+   width:400px; 
    height:100px;
    background-color:#fff;
    color:green;
@@ -406,4 +406,8 @@ Screen - Game
    overflow-x: hidden;
    border: 1px solid #999;
    margin: 5px 0px;
+}
+
+.codeText {
+   font-size: large;
 }
