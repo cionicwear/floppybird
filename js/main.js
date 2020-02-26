@@ -54,6 +54,9 @@ buzz.all().setVolume(volume);
 var loopGameloop;
 var loopPipeloop;
 
+//metrics
+let startTime, endTime;
+
 $(document).ready(function() {
    if(window.location.search == "?debug")
       debugmode = true;
@@ -83,7 +86,7 @@ const cionic = new cionicjs.Cionic({
 }});
 
 // add Cionic listeners
-cionic.Stream.registerListener('lPress', function(isPressed) {
+cionic.addListener('lPress', function(isPressed) {
    if (isPressed === 'ON') {
       if(currentstate == states.ScoreScreen)
          $("#replay").click();
@@ -92,7 +95,7 @@ cionic.Stream.registerListener('lPress', function(isPressed) {
    }
 });
 
-cionic.Stream.registerListener('rPress', function(isPressed) {
+cionic.addListener('rPress', function(isPressed) {
    if (isPressed === 'ON') {
       if(currentstate == states.ScoreScreen)
          $("#replay").click();
@@ -158,6 +161,7 @@ function showSplash()
 
 function startGame()
 {
+   startTime = new Date().getTime();
    currentstate = states.GameScreen;
 
    //fade out the splash
@@ -384,6 +388,15 @@ function setMedal()
 
 function playerDead()
 {
+   // send metrics
+   endTime = new Date().getTime();
+   const metric = {
+      startTime,
+      endTime,
+      score
+   };
+   cionic.sendJSON('metrics', metric);
+
    //stop animating everything!
    $(".animated").css('animation-play-state', 'paused');
    $(".animated").css('-webkit-animation-play-state', 'paused');
