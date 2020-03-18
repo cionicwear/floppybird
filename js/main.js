@@ -35,7 +35,7 @@ var flyArea = $("#flyarea").height();
 var score = 0;
 var highscore = 0;
 
-var pipeheight = 90;
+var pipeheight = 200;
 var pipewidth = 52;
 var pipes = new Array();
 
@@ -86,16 +86,7 @@ const cionic = new cionicjs.Cionic({
 }});
 
 // add Cionic listeners
-cionic.addListener('lPress', function(isPressed) {
-   if (isPressed === 'ON') {
-      if(currentstate == states.ScoreScreen)
-         $("#replay").click();
-      else
-         screenClick();
-   }
-});
-
-cionic.addListener('rPress', function(isPressed) {
+cionic.addListener('32', function(isPressed) {
    if (isPressed === 'ON') {
       if(currentstate == states.ScoreScreen)
          $("#replay").click();
