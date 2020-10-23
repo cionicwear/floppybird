@@ -19,7 +19,11 @@
 
    <head>
       <title>Floppy Bird</title>
-      <base href="/floppybird/2/">
+      <script type="text/javascript">
+         if (document.location.host.includes('app.cionic.com')) {
+            document.write("<base href='/floppybird/3/>'");
+         }
+      </script>
       <meta http-equiv="content-type" content="text/html; charset=utf-8" />
       <meta name="author" content="Nebez Briefkani" />
       <meta name="description" content="play floppy bird. a remake of popular game flappy bird using just html/css/js" />
@@ -67,8 +71,6 @@
       <div id="footer">
          <div id="cionic-container">
             <div><h1 class="codeText" id="code">fetching code </h1></div>
-            <input type="text" name="host" id="host" style="width:150px" value="localhost:8080"/>
-            <input type="button" id="cionic-connect" value="Connect"/>
             <div id="log"></div>
         </div>
 
@@ -76,7 +78,7 @@
       <div class="boundingbox" id="playerbox"></div>
       <div class="boundingbox" id="pipebox"></div>
       
-      <script src="http://app.cionic.com/cionic/55/cionic.min.js"></script>
+      <script src="http://app.cionic.com/cionic/81/cionic.min.js"></script>
       <script src="js/jquery.min.js"></script>
       <script src="js/jquery.transit.min.js"></script>
       <script src="js/buzz.min.js"></script>

@@ -69,7 +69,7 @@ $(document).ready(function() {
       highscore = parseInt(savedscore);
 
    // add monitor code
-   const monitorAPI = new cionicjs.MonitorAPI({});
+   const monitorAPI = new cionicjs.MonitorAPI({verbose: true});
    monitorAPI.addPlayer(cionic);
    monitorAPI.main()
 
@@ -86,20 +86,28 @@ const cionic = new cionicjs.Cionic({
 }});
 
 // add Cionic listeners
-cionic.addListener('32', function(isPressed) {
-   if (isPressed === 'ON') {
-      if(currentstate == states.ScoreScreen)
-         $("#replay").click();
-      else
-         screenClick();
+cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.QUAT_GW, (data) => {
+   // we don't do anything with this data so ignore it
+});
+cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.ADC_GW, (data) => {
+   // we don't do anything with this data so ignore it
+});
+cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.CMD_GW, function (data) {
+   var cmdJson = JSON.parse(data);
+   var cmd = cmdJson['cmd'];
+
+   if (cmd === 'monitorkey') {
+      if (cmdJson.hasOwnProperty('32')) {
+         var isPressed = cmdJson['32'];
+         if (isPressed === 'ON') {
+            if(currentstate == states.ScoreScreen)
+               $("#replay").click();
+            else
+               screenClick();
+         }
+      }
    }
 });
-
-// connect to the gateway
-document.getElementById('cionic-connect').onclick = function () {
-   let host = document.getElementById('host').value;
-   cionic.Stream.socket(host);
-};
 
 function getCookie(cname)
 {
@@ -382,11 +390,13 @@ function playerDead()
    // send metrics
    endTime = new Date().getTime();
    const metric = {
-      startTime,
-      endTime,
-      score
+      data: {
+         startTime,
+         endTime,
+         score
+      }
    };
-   cionic.sendJSON('metrics', metric);
+   cionic.sendWebRTCCommand('metrics', metric);
 
    //stop animating everything!
    $(".animated").css('animation-play-state', 'paused');
