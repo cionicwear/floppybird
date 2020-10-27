@@ -68,11 +68,6 @@ $(document).ready(function() {
    if(savedscore != "")
       highscore = parseInt(savedscore);
 
-   // add monitor code
-   const monitorAPI = new cionicjs.MonitorAPI({verbose: true});
-   monitorAPI.addPlayer(cionic);
-   monitorAPI.main()
-
    //start with the splash screen
    showSplash();
 });
@@ -108,6 +103,11 @@ cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.CMD_GW, function (data) {
       }
    }
 });
+
+// add monitor code
+const monitorAPI = new cionicjs.MonitorAPI({verbose: true});
+monitorAPI.addPlayer(cionic);
+monitorAPI.main()
 
 function getCookie(cname)
 {
@@ -388,15 +388,18 @@ function setMedal()
 function playerDead()
 {
    // send metrics
-   endTime = new Date().getTime();
-   const metric = {
-      data: {
-         startTime,
-         endTime,
-         score
-      }
-   };
-   cionic.sendWebRTCCommand('metrics', metric);
+   // TODO: cjs 112 easier way to access stream state
+   if (monitorAPI._players[0].Stream.state === cionicjs.STREAM_STATES.ON) {
+      endTime = new Date().getTime();
+      const metric = {
+         data: {
+            startTime,
+            endTime,
+            score
+         }
+      };
+      cionic.sendWebRTCCommand('metrics', metric);
+   }
 
    //stop animating everything!
    $(".animated").css('animation-play-state', 'paused');
