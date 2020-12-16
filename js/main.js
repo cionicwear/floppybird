@@ -73,7 +73,7 @@ $(document).ready(function() {
 });
 
 // instantiate Cionic SDK
-const cionic = new cionicjs.Cionic({
+window.cionic = new cionicjs.Cionic({
    streamLogger: function(msg, cls) {
       var logDiv = document.getElementById('log');
       logDiv.innerHTML += '<div class="'+cls+'">&gt;&nbsp;' + msg + '</div>';
@@ -81,13 +81,7 @@ const cionic = new cionicjs.Cionic({
 }});
 
 // add Cionic listeners
-cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.QUAT_GW, (data) => {
-   // we don't do anything with this data so ignore it
-});
-cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.ADC_GW, (data) => {
-   // we don't do anything with this data so ignore it
-});
-cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.CMD_GW, function (data) {
+window.cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.CMD_GW, function (data) {
    var cmdJson = JSON.parse(data);
    var cmd = cmdJson['cmd'];
    console.log(cmdJson);
@@ -107,7 +101,7 @@ cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.CMD_GW, function (data) {
 
 // add monitor code
 const monitorAPI = new cionicjs.MonitorAPI({verbose: true});
-monitorAPI.addPlayer(cionic);
+monitorAPI.addPlayer(window.cionic);
 monitorAPI.main()
 
 function getCookie(cname)
@@ -389,8 +383,7 @@ function setMedal()
 function playerDead()
 {
    // send metrics
-   // TODO: cjs 112 easier way to access stream state
-   if (monitorAPI._players[0].Stream.state === cionicjs.STREAM_STATES.ON) {
+   if (monitorAPI.streamState === cionicjs.STREAM_STATES.ON) {
       endTime = new Date().getTime();
       const metric = {
          data: {
@@ -399,7 +392,7 @@ function playerDead()
             score
          }
       };
-      cionic.sendWebRTCCommand('metrics', metric);
+      window.cionic.sendWebRTCCommand('metrics', metric);
    }
 
    //stop animating everything!
