@@ -57,21 +57,6 @@ var loopPipeloop;
 //metrics
 let startTime, endTime;
 
-$(document).ready(function() {
-   if(window.location.search == "?debug")
-      debugmode = true;
-   if(window.location.search == "?easy")
-      pipeheight = 200;
-
-   //get the highscore
-   var savedscore = getCookie("highscore");
-   if(savedscore != "")
-      highscore = parseInt(savedscore);
-
-   //start with the splash screen
-   showSplash();
-});
-
 // instantiate Cionic SDK
 window.cionic = new cionicjs.Cionic({
    streamLogger: function(msg, cls) {
@@ -79,6 +64,16 @@ window.cionic = new cionicjs.Cionic({
       logDiv.innerHTML += '<div class="'+cls+'">&gt;&nbsp;' + msg + '</div>';
       logDiv.scrollTop = logDiv.scrollHeight;
 }});
+
+let recStarted = false;
+function startOrStopProtocol() {
+   if (!recStarted) {
+      cionicjs.GatewayUtils.startProtocol();
+   } else {
+      cionicjs.GatewayUtils.stopProtocol();
+      $('#protoStartButton').html('Start Protocol');
+   }
+}
 
 // add Cionic listeners
 window.cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.CMD_GW, function (data) {
@@ -94,6 +89,44 @@ window.cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.CMD_GW, function (data)
                $("#replay").click();
             else
                screenClick();
+         }
+      }
+   }
+   else if (cmd === 'recstart') {
+      const status = cmdJson['status'];
+      
+      // recording has started
+      if (status === true) {
+         $('#protoStartButton').html('End Recording');
+         recStarted = true;
+      }
+   }
+   else if (cmd === 'recstop') {
+      // recording has stopped
+      recStarted = false;
+   }
+   else if (cmd === 'remstate') {
+      const availability = cmdJson['state_rec_availability'];
+      if (availability === true) {
+         $('#protoStartButton').removeClass("disabled");
+      } else {
+         $('#protoStartButton').addClass("disabled");
+      }
+   }
+   else if (cmd === 'remerror') {
+      const code = cmdJson['code'];
+      if (code === 2) {
+         const availability = cmdJson['state_rec_availability'];
+         if (availability === false && recStarted) {
+              // stop the recording, we shouldn't record anymore
+            cionicjs.GatewayUtils.stopProtocol();
+            $('#protoStartButton').addClass("disabled");
+         }
+         else if (availability === false) {
+            $('#protoStartButton').addClass("disabled");
+         }
+         else if (availability === true) {
+            $('#protoStartButton').removeClass("disabled");
          }
       }
    }
@@ -545,3 +578,25 @@ var isIncompatible = {
    return (isIncompatible.Android() || isIncompatible.BlackBerry() || isIncompatible.iOS() || isIncompatible.Opera() || isIncompatible.Safari() || isIncompatible.Windows());
    }
 };
+
+$(document).ready(function() {
+   if(window.location.search == "?debug")
+      debugmode = true;
+   if(window.location.search == "?easy")
+      pipeheight = 200;
+
+   //get the highscore
+   var savedscore = getCookie("highscore");
+   if(savedscore != "")
+      highscore = parseInt(savedscore);
+
+   //start with the splash screen
+   showSplash();
+
+   if (cionicjs.WebUtils.isOnMobile()) {
+		document.getElementById('protoStartButton').addEventListener('click', startOrStopProtocol);
+
+		// see if we can record / update button style accordingly
+		cionicjs.GatewayUtils.checkRecordAvailability();
+	} 
+});
