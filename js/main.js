@@ -79,7 +79,6 @@ function startOrStopProtocol() {
 window.cionic.registerWebRTCHandler(cionicjs.DATA_TRACKS.CMD_GW, function (data) {
    var cmdJson = JSON.parse(data);
    var cmd = cmdJson['cmd'];
-   console.log(cmdJson);
 
    if (cmd === 'monitorkey') {
       if (cmdJson.hasOwnProperty('32')) {
@@ -593,7 +592,7 @@ $(document).ready(function() {
    //start with the splash screen
    showSplash();
 
-   if (cionicjs.WebUtils.isOnMobile()) {
+   if (cionicjs.WebUtils.isOnMobileOrTablet()) {
 		document.getElementById('protoStartButton').addEventListener('click', startOrStopProtocol);
 
 		// see if we can record / update button style accordingly
